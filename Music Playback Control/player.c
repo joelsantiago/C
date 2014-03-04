@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <pthread.h>
 #include <unistd.h>
 
@@ -36,13 +35,13 @@ int main() {
 	player_init(&player);	// pass the player struct to the initialization function
 	player_menu();			// display the menu options
 
-	while(1) {			
+	while(1) {
 		char input = getchar();
-		switch(input) {	
+		switch(input) {
 			case 'l':						// if user types L or l
 				player_load(&player);			// pass player struct to loadfile function
 				break;
-			case ' ':						// if user types a blank space ' '				
+			case ' ':						// if user types a blank space ' '
 				player_play(&player);			// pass player struct to start function
 				break;
 			case 'r':						// if user types R or r
@@ -50,10 +49,10 @@ int main() {
 				break;
 			case 's':						// if user types S or s
 				player_seek(&player);			// pass player struct to seek function
-				break;		
-			case 't':						// if user types T or t			
+				break;
+			case 't':						// if user types T or t
 				player_rate(&player);			// pass player to set rate
-				break;		
+				break;
 		}
 	}
 }
@@ -86,19 +85,19 @@ static void player_load(struct mpc *control) {
 
 	// Loops through the file to get total size of array
 	while (fgets(line, sizeof line, file) != NULL) {
-		count++;		
+		count++;
 	}
 	// Sets file pointer back to the start
 	rewind(file);
-	
-	// Looops through array and assigns each line to an array 
-	while( i < count && fgets( buf, 1024, file ) != NULL )  { 
+
+	// Looops through array and assigns each line to an array
+	while( i < count && fgets( buf, 1024, file ) != NULL )  {
 	    array[i] = malloc( strlen(buf) + 1 ); /*maybe you haven't allocated the strings*/
-	    strcpy( array[i++], buf ); 
+	    strcpy( array[i++], buf );
 	}
 	// Loops through the file to get total size of array
 	rewind(file);
-	
+
 	printf("File %s has been loaded\n\n", filename);
 	player_menu();
 }
@@ -144,7 +143,7 @@ static int player_rate(struct mpc *control) {
 	float newrate;								// newrate variable for user input of playback rate
 	float temprate = rate;						// assigns value of rate to temprate to use in rate calculation
 	scanf("%f",&newrate);						// checks to see if user inputted new playback rate
-	rate = (int) (temprate / newrate);			// assigns newrate to rate 
+	rate = (int) (temprate / newrate);			// assigns newrate to rate
 	printf("\nPlay Rate: %f\n\n", newrate);
 	player_menu();								// calls back the menu options
 }
@@ -155,10 +154,10 @@ typedef enum { false, true } bool;				// boolean values for paused, determines w
 void* start_pthread(void* control)
 {
 	if (rate > 0)								// if rate is positive, i is assigned 0
-		i = 0;	
+		i = 0;
 	if (rate < 0)
 		c = count-1;
-	bool paused = false;						// sets paused to false							
+	bool paused = false;						// sets paused to false
 	struct mpc* player_state = (struct mpc*) control;
 	while (1) {
  		switch (player_state->mpc_state) {
@@ -181,9 +180,9 @@ void* start_pthread(void* control)
 				}
 				else if (rate < 0) {						// if rate of play is negative
 					float currate = rate * -1;				// converts negative rate of play to positive for usleep
-					while ( c >= 0) {					
+					while ( c >= 0) {
 						if(!paused) {						// if player is not paused
-							printf("%s", array[c]);			
+							printf("%s", array[c]);
 							usleep(currate);				// sleep for given amount of time
 							c--;
 							if (!paused)
@@ -197,7 +196,7 @@ void* start_pthread(void* control)
 					}
 				}
 				break;
-				
+
 			case PAUSE:
 				printf("\nPlayer paused.\n");
 				pthread_mutex_lock(&player_state->mpc_mutex);
